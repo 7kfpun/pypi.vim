@@ -25,10 +25,8 @@ function! Pypi(package)
         let versions = []
 
         for a_element in dom.findAll('a')
-            if has_key(a_element, 'child')
-                if a_element['child'][0] =~ "\.tar\.gz"
-                    call add(versions, a_element['child'][0])
-                endif
+            if has_key(a_element, 'child') && a_element['child'][0] =~ "\.tar\.gz"
+                call add(versions, a_element['child'][0])
             endif
         endfor
 
@@ -52,24 +50,21 @@ function! s:PypiReviewSearch(force)
 
     let filename = expand('%:t')
 
-    if a:force || filename =~ 'requirement'
+    if a:force || filename =~ 'requirement' || len(readfile(expand('%:p'))) < 20
         let search_packages = readfile(expand('%:p'))
     else
-        echomsg 'Only first 20 lines would be searched.'
+        echomsg 'Only first 20 lines would be searched. Use PypiReviewForce to check all lines.'
         let search_packages = readfile(expand('%:p'))[:20]
     endif
 
-
     for line in search_packages
-        if line !~ '#'
-            if strlen(line)
-                if line =~ '=='
-                    let package_name = split(line, '==')[0]
-                else
-                    let package_name = line
-                endif
-                echo Pypi(package_name)
+        if line !~ '#' && strlen(line)
+            if line =~ '=='
+                let package_name = split(line, '==')[0]
+            else
+                let package_name = line
             endif
+            echo Pypi(package_name)
         endif
     endfor
 
