@@ -1,6 +1,8 @@
 " pypi - Get the latest version of the package in Vim
 " Maintainer: kf <7kfpun@gmail.com>
 
+scriptencoding utf-8
+
 
 silent! call webapi#json#decode('{}')
 if !exists('*webapi#json#decode')
