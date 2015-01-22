@@ -4,6 +4,12 @@
 scriptencoding utf-8
 
 
+if (exists("g:loaded_pypi") && g:loaded_pypi) || &cp
+    finish
+endif
+let g:loaded_pypi = 1
+
+
 silent! call webapi#json#decode('{}')
 if !exists('*webapi#json#decode')
     echohl ErrorMsg | echomsg "checkip.vim requires webapi (https://github.com/mattn/webapi-vim)" | echohl None
@@ -11,77 +17,6 @@ if !exists('*webapi#json#decode')
 endif
 
 
-function! s:Strip(input_string)
-    return substitute(a:input_string, '^\s*\(.\{-}\)\s*$', '\1', '')
-endfunction
-
-
-function! Pypi(package)
-
-    let request_uri = 'https://pypi.python.org/simple/'.s:Strip(a:package)
-    try
-        let response = webapi#http#get(request_uri)
-        if response.status == 200
-            let dom = webapi#xml#parse(response.content)
-
-            let versions = []
-
-            for a_element in dom.findAll('a')
-                if has_key(a_element, 'child') && a_element['child'][0] =~ "\.tar\.gz"
-                    call add(versions, a_element['child'][0])
-                endif
-            endfor
-
-            try
-                let latest_version = split(reverse(sort(versions))[0], '\.tar\.gz')[0]
-                return latest_version
-            catch
-                return 'Package could not be found.'
-            endtry
-        else
-            return 'Package could not be found.'
-        endif
-
-    catch
-        echoerr 'Something wrong with the internet.'
-    endtry
-
-endfunction
-
-command! -nargs=1 Pypi echo Pypi(<f-args>)
-
-
-function! s:PypiReviewSearch(force)
-
-    let filename = expand('%:t')
-
-    if a:force || filename =~ 'requirement' || len(readfile(expand('%:p'))) < 20
-        let search_packages = readfile(expand('%:p'))
-    else
-        echomsg 'Only first 20 lines would be searched. Use PypiReviewForce to check all lines.'
-        let search_packages = readfile(expand('%:p'))[:20]
-    endif
-
-    for line in search_packages
-        if line !~ '#' && strlen(line)
-            try
-                if line =~ '=='
-                    let package_name = split(line, '==')[0]
-                else
-                    let package_name = line
-                endif
-
-                let latest_version = Pypi(package_name)
-                if strlen(latest_version) > 0
-                    echo latest_version
-                endif
-            catch
-            endtry
-        endif
-    endfor
-
-endfunction
-
-
-command! PypiReview call s:PypiReviewSearch(0)
-command! PypiReviewForce call s:PypiReviewSearch(1)
+command! -nargs=1 Pypi :echo pypi#Pypi(<f-args>)
+command! PypiReview :call pypi#PypiReviewSearch(0)
+command! PypiReviewForce :call pypi#PypiReviewSearch(1)
