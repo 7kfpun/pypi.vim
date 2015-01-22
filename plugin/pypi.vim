@@ -36,10 +36,10 @@ function! Pypi(package)
                 let latest_version = split(reverse(sort(versions))[0], '\.tar\.gz')[0]
                 return latest_version
             catch
-                echomsg 'Package could not be found.'
+                return 'Package could not be found.'
             endtry
         else
-            echomsg 'Package could not be found.'
+            return 'Package could not be found.'
         endif
 
     catch
@@ -64,12 +64,19 @@ function! s:PypiReviewSearch(force)
 
     for line in search_packages
         if line !~ '#' && strlen(line)
-            if line =~ '=='
-                let package_name = split(line, '==')[0]
-            else
-                let package_name = line
-            endif
-            echo Pypi(package_name)
+            try
+                if line =~ '=='
+                    let package_name = split(line, '==')[0]
+                else
+                    let package_name = line
+                endif
+
+                let latest_version = Pypi(package_name)
+                if strlen(latest_version) > 0
+                    echo latest_version
+                endif
+            catch
+            endtry
         endif
     endfor
 
