@@ -43,7 +43,7 @@ endfunction
 
 
 function! s:AddComment(line_number, text)
-    let replace_text = s:Strip(getline(a:line_number).'  # '.a:text)
+    let replace_text = getline(a:line_number).'  # '.a:text
     call setline(a:line_number, replace_text)
 endfunction
 
@@ -67,7 +67,7 @@ function! pypi#PypiReviewSearch(force)
 
             if strlen(package_name)
                 let latest_version = pypi#Pypi(package_name)
-                if !latest_version
+                if latest_version != '0'
                     echo latest_version
                     let latest_version = substitute(latest_version, "-", "==", "")
 
