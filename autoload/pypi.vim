@@ -69,6 +69,7 @@ function! pypi#PypiReviewSearch(force)
                 let latest_version = pypi#Pypi(package_name)
                 if !latest_version
                     echo latest_version
+                    let latest_version = substitute(latest_version, "-", "==", "")
 
                     if g:enable_add_latest_version
                         call s:AddComment(line_number, latest_version)
