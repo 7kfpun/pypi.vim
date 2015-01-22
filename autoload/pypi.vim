@@ -44,7 +44,6 @@ endfunction
 
 function! s:AddComment(line_number, text)
     let replace_text = s:Strip(getline(a:line_number).'  # '.a:text)
-    echo replace_text
     call setline(a:line_number, replace_text)
 endfunction
 
@@ -53,11 +52,11 @@ function! pypi#PypiReviewSearch(force)
 
     let filename = expand('%:t')
 
-    if a:force || filename =~ 'requirement' || len(readfile(expand('%:p'))) < 20
+    if a:force || filename =~ 'requirement' || len(readfile(expand('%:p'))) < g:try_first_n_lines
         let search_packages = readfile(expand('%:p'))
     else
-        echomsg 'Only first 20 lines would be searched. Use PypiReviewForce to check all lines.'
-        let search_packages = readfile(expand('%:p'))[:20]
+        echomsg 'Only first '.g:try_first_n_lines.' lines would be searched. Use PypiReviewForce to check all lines.'
+        let search_packages = readfile(expand('%:p'))[:g:try_first_n_lines]
     endif
 
     let line_number = 1
@@ -83,7 +82,10 @@ function! pypi#PypiReviewSearch(force)
                 if strlen(latest_version) > 0
                     echo latest_version
                     let version_number = split(latest_version, '-')[0]
-                    call s:AddComment(line_number, latest_version)
+
+                    if g:enable_add_latest_version
+                        call s:AddComment(line_number, latest_version)
+                    endif
                 endif
             endif
         catch
