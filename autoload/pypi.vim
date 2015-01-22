@@ -26,13 +26,13 @@ function! pypi#Pypi(package_name)
             endfor
 
             try
-                let latest_version = split(reverse(sort(versions))[0], '\.tar\.gz')[0]
+                let latest_version = substitute(reverse(sort(versions))[0], "\.tar.*", "", "")
                 return latest_version
             catch
-                return 'Package could not be found.'
+                echomsg 'Package could not be found.'
             endtry
         else
-            return 'Package could not be found.'
+            echomsg 'Package could not be found.'
         endif
 
     catch
@@ -62,26 +62,13 @@ function! pypi#PypiReviewSearch(force)
     let line_number = 1
     for line in search_packages
         try
-            let line = ' '.line
 
-            if line =~ '=='
-                let package_name = split(line, '==')[0]
-            else
-                let package_name = line
-            endif
+            let package_name = s:Strip(substitute(line, "[#=].*", "", ""))
 
-            if line =~ '#'
-                let package_name = split(line, '#')[0]
-            else
-                let package_name = line
-            endif
-
-            let package_name = s:Strip(package_name)
             if strlen(package_name)
                 let latest_version = pypi#Pypi(package_name)
-                if strlen(latest_version) > 0
+                if !latest_version
                     echo latest_version
-                    let version_number = split(latest_version, '-')[0]
 
                     if g:enable_add_latest_version
                         call s:AddComment(line_number, latest_version)
