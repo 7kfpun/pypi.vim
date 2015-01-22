@@ -20,22 +20,27 @@ function! Pypi(package)
 
     let request_uri = 'https://pypi.python.org/simple/'.s:Strip(a:package)
     try
-        let dom = webapi#xml#parseURL(request_uri)
+        let response = webapi#http#get(request_uri)
+        if response.status == 200
+            let dom = webapi#xml#parse(response.content)
 
-        let versions = []
+            let versions = []
 
-        for a_element in dom.findAll('a')
-            if has_key(a_element, 'child') && a_element['child'][0] =~ "\.tar\.gz"
-                call add(versions, a_element['child'][0])
-            endif
-        endfor
+            for a_element in dom.findAll('a')
+                if has_key(a_element, 'child') && a_element['child'][0] =~ "\.tar\.gz"
+                    call add(versions, a_element['child'][0])
+                endif
+            endfor
 
-        try
-            let latest_version = split(reverse(sort(versions))[0], '\.tar\.gz')[0]
-            return latest_version
-        catch
+            try
+                let latest_version = split(reverse(sort(versions))[0], '\.tar\.gz')[0]
+                return latest_version
+            catch
+                echomsg 'Package could not be found.'
+            endtry
+        else
             echomsg 'Package could not be found.'
-        endtry
+        endif
 
     catch
         echoerr 'Something wrong with the internet.'
