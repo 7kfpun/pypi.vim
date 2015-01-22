@@ -9,9 +9,9 @@ function! s:Strip(input_string)
 endfunction
 
 
-function! pypi#Pypi(package)
+function! pypi#Pypi(package_name)
 
-    let request_uri = 'https://pypi.python.org/simple/'.s:Strip(a:package)
+    let request_uri = 'https://pypi.python.org/simple/'.a:package_name
     try
         let response = webapi#http#get(request_uri)
         if response.status == 200
@@ -42,6 +42,13 @@ function! pypi#Pypi(package)
 endfunction
 
 
+function! s:AddComment(line_number, text)
+    let replace_text = s:Strip(getline(a:line_number).'  # '.a:text)
+    echo replace_text
+    call setline(a:line_number, replace_text)
+endfunction
+
+
 function! pypi#PypiReviewSearch(force)
 
     let filename = expand('%:t')
@@ -53,22 +60,36 @@ function! pypi#PypiReviewSearch(force)
         let search_packages = readfile(expand('%:p'))[:20]
     endif
 
+    let line_number = 1
     for line in search_packages
-        if line !~ '#' && strlen(line)
-            try
-                if line =~ '=='
-                    let package_name = split(line, '==')[0]
-                else
-                    let package_name = line
-                endif
+        try
+            let line = ' '.line
 
+            if line =~ '=='
+                let package_name = split(line, '==')[0]
+            else
+                let package_name = line
+            endif
+
+            if line =~ '#'
+                let package_name = split(line, '#')[0]
+            else
+                let package_name = line
+            endif
+
+            let package_name = s:Strip(package_name)
+            if strlen(package_name)
                 let latest_version = pypi#Pypi(package_name)
                 if strlen(latest_version) > 0
                     echo latest_version
+                    let version_number = split(latest_version, '-')[0]
+                    call s:AddComment(line_number, latest_version)
                 endif
-            catch
-            endtry
-        endif
+            endif
+        catch
+        endtry
+
+        let line_number = line_number + 1
     endfor
 
 endfunction
