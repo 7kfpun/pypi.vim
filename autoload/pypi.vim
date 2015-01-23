@@ -9,9 +9,19 @@ function! s:Strip(input_string)
 endfunction
 
 
+function! s:CleanLine(line)
+    return s:Strip(substitute(a:line, "[#=].*", "", ""))
+endfunction
+
+
 function! pypi#Pypi(package_name)
 
-    let request_uri = 'https://pypi.python.org/simple/'.a:package_name
+    let package_name = s:CleanLine(a:package_name)
+    if !strlen(package_name)
+        return
+    endif
+
+    let request_uri = 'https://pypi.python.org/simple/'.package_name
     try
         let response = webapi#http#get(request_uri)
         if response.status == 200
@@ -62,18 +72,14 @@ function! pypi#PypiReviewSearch(force)
     let line_number = 1
     for line in search_packages
         try
+            let package_name = s:CleanLine(line)
+            let latest_version = pypi#Pypi(package_name)
+            if latest_version != '0'
+                echo latest_version
+                let latest_version = substitute(latest_version, "-", "==", "")
 
-            let package_name = s:Strip(substitute(line, "[#=].*", "", ""))
-
-            if strlen(package_name)
-                let latest_version = pypi#Pypi(package_name)
-                if latest_version != '0'
-                    echo latest_version
-                    let latest_version = substitute(latest_version, "-", "==", "")
-
-                    if g:enable_add_latest_version
-                        call s:AddComment(line_number, latest_version)
-                    endif
+                if g:enable_add_latest_version
+                    call s:AddComment(line_number, latest_version)
                 endif
             endif
         catch
