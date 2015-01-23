@@ -23,9 +23,11 @@ function! s:check_defined(variable, default)
     endif
 endfunction
 
-call s:check_defined('g:enable_print_result', 1)
-call s:check_defined('g:enable_add_latest_version', 0)
-call s:check_defined('g:try_first_n_lines', 20)
+
+call s:check_defined('g:pypi_print_results', 1)
+call s:check_defined('g:pypi_replace_latest_version', 1)
+call s:check_defined('g:pypi_replace_with_comment', 1)
+call s:check_defined('g:pypi_attempt_lines', 20)
 
 
 command! -nargs=1 Pypi :echo pypi#Pypi(<f-args>)
