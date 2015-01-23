@@ -17,6 +17,18 @@ if !exists('*webapi#json#decode')
 endif
 
 
+function! s:check_defined(variable, default)
+    if !exists(a:variable)
+        let {a:variable} = a:default
+    endif
+endfunction
+
+call s:check_defined('g:enable_print_result', 1)
+call s:check_defined('g:enable_add_latest_version', 0)
+call s:check_defined('g:try_first_n_lines', 20)
+
+
 command! -nargs=1 Pypi :echo pypi#Pypi(<f-args>)
 command! PypiReview :call pypi#PypiReviewSearch(0)
 command! PypiReviewForce :call pypi#PypiReviewSearch(1)
+command! PypiThis :echo pypi#Pypi(getline("."))
