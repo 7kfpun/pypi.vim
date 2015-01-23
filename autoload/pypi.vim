@@ -71,19 +71,18 @@ function! pypi#PypiReviewSearch(force)
 
     let line_number = 1
     for line in search_packages
-        try
-            let package_name = s:CleanLine(line)
-            let latest_version = pypi#Pypi(package_name)
-            if latest_version != '0'
+        let package_name = s:CleanLine(line)
+        let latest_version = pypi#Pypi(package_name)
+        if latest_version != '0'
+            if g:enable_print_result
                 echo latest_version
-                let latest_version = substitute(latest_version, "-", "==", "")
-
-                if g:enable_add_latest_version
-                    call s:AddComment(line_number, latest_version)
-                endif
             endif
-        catch
-        endtry
+
+            if g:enable_add_latest_version
+                let latest_version = substitute(latest_version, "-", "==", "")
+                call s:AddComment(line_number, latest_version)
+            endif
+        endif
 
         let line_number = line_number + 1
     endfor

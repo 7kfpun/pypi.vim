@@ -23,6 +23,7 @@ function! s:check_defined(variable, default)
     endif
 endfunction
 
+call s:check_defined('g:enable_print_result', 1)
 call s:check_defined('g:enable_add_latest_version', 0)
 call s:check_defined('g:try_first_n_lines', 20)
 
