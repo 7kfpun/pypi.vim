@@ -31,12 +31,12 @@ function! pypi#Pypi(package_name)
 
             for a_element in dom.findAll('a')
                 if has_key(a_element, 'child') && a_element['child'][0] =~ "\.tar\.gz"
-                    call add(versions, a_element['child'][0])
+                    call add(versions, substitute(a_element['child'][0], "\.tar.*", "", ""))
                 endif
             endfor
 
             try
-                let latest_version = substitute(reverse(sort(versions))[0], "\.tar.*", "", "")
+                let latest_version = reverse(sort(versions))[0]
                 return latest_version
             catch
                 echomsg 'Package could not be found.'
@@ -58,6 +58,25 @@ function! s:AddComment(line_number, text)
 endfunction
 
 
+function! s:CheckLine(line, position)
+    if a:position == ''
+        let a:position = '.'
+    endif
+
+    let latest_version = pypi#Pypi(a:line)
+    if latest_version != '0'
+        if g:enable_print_result
+            echo latest_version
+        endif
+
+        if g:enable_add_latest_version
+            let latest_version = substitute(latest_version, "-", "==", "")
+            call s:AddComment(a:position, latest_version)
+        endif
+    endif
+endfunction
+
+
 function! pypi#PypiReviewSearch(force)
 
     let filename = expand('%:t')
@@ -69,23 +88,15 @@ function! pypi#PypiReviewSearch(force)
         let search_packages = readfile(expand('%:p'))[:g:try_first_n_lines]
     endif
 
-    let line_number = 1
+    let line_position = 1
     for line in search_packages
-        let package_name = s:CleanLine(line)
-        let latest_version = pypi#Pypi(package_name)
-        if latest_version != '0'
-            if g:enable_print_result
-                echo latest_version
-            endif
-
-            if g:enable_add_latest_version
-                let latest_version = substitute(latest_version, "-", "==", "")
-                call s:AddComment(line_number, latest_version)
-            endif
-        endif
-
-        let line_number = line_number + 1
-
+        call s:CheckLine(line, line_position)
+        let line_position = line_position + 1
     endfor
 
+endfunction
+
+
+function! pypi#PypiReviewLines()
+    call s:CheckLine(getline('.'), '.')
 endfunction
