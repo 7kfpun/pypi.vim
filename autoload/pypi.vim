@@ -79,7 +79,8 @@ function! s:CheckLine(line, position)
         endif
 
         if g:pypi_replace_latest_version
-            let latest_version = substitute(latest_version, "-", "==", "")
+            let latest_version_split = split(latest_version, '-')
+            let latest_version = join(latest_version_split[:-2], '-') . '==' . latest_version_split[-1]
             call s:ReplaceLatestVersion(a:position, latest_version)
         endif
     endif
