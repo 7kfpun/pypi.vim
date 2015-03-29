@@ -12,7 +12,7 @@ let g:loaded_pypi = 1
 
 silent! call webapi#json#decode('{}')
 if !exists('*webapi#json#decode')
-    echohl ErrorMsg | echomsg "checkip.vim requires webapi (https://github.com/mattn/webapi-vim)" | echohl None
+    echohl ErrorMsg | echomsg "pypi.vim requires webapi (https://github.com/mattn/webapi-vim)" | echohl None
     finish
 endif
 
