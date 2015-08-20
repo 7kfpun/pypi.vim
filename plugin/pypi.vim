@@ -27,7 +27,7 @@ endfunction
 call s:check_defined('g:pypi_print_results', 1)
 call s:check_defined('g:pypi_replace_latest_version', 1)
 call s:check_defined('g:pypi_replace_type', '==')
-call s:check_defined('g:pypi_replace_with_comment', 1)
+call s:check_defined('g:pypi_replace_with_comment', 0)
 
 
 command! -nargs=* -range Pypi :<line1>,<line2>call pypi#Pypi(<f-args>)
