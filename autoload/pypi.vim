@@ -1,4 +1,4 @@
-" pypi - Get the latest version of the package in Vim
+" pypi - Simple plugin for checking the latest version of the Python package in Vim.
 " Maintainer: kf <7kfpun@gmail.com>
 
 scriptencoding utf-8
