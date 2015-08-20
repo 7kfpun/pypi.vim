@@ -21,32 +21,17 @@ function! pypi#Pypi(package_name)
         return
     endif
 
-    let request_uri = 'https://pypi.python.org/simple/'.package_name
+    let request_uri = 'https://pypi.python.org/pypi/'.package_name.'/json'
     try
         let response = webapi#http#get(request_uri)
         if response.status == 200
-            let dom = webapi#xml#parse(response.content)
-
-            let versions = []
-
-            for a_element in dom.findAll('a')
-                if has_key(a_element, 'child') && a_element['child'][0] =~ "\.tar\.gz"
-                    call add(versions, substitute(a_element['child'][0], "\.tar.*", "", ""))
-                endif
-            endfor
-
-            try
-                let latest_version = reverse(sort(versions))[0]
-                return latest_version
-            catch
-                echomsg 'Package could not be found.'
-            endtry
+            return webapi#json#decode(response.content)['info']['version']
         else
             echomsg 'Package could not be found.'
         endif
 
     catch
-        echoerr 'Something wrong with the internet.'
+        echoerr 'Something wrong with the internet: '.v:exception
     endtry
 
 endfunction
