@@ -37,7 +37,9 @@ endfunction
 function! s:ReplaceLatestVersion(line_number, text)
     let old_line = getline(a:line_number)
     if old_line =~ a:text
-        echomsg 'It is already the latest version.'
+        if g:pypi_print_results
+            echomsg 'It is already the latest version.'
+        endif
         return
     endif
 

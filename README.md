@@ -2,6 +2,8 @@
 
 Simple plugin for checking the latest version of the Python package in Vim.
 
+![Screenshot](snapshot.gif)
+
 ## Requirements
 
 - [webapi-vim][]
