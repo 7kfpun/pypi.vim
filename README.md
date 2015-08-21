@@ -2,6 +2,8 @@
 
 Simple plugin for checking the latest version of the Python package in Vim.
 
+![Screenshot](snapshot.gif)
+
 ## Requirements
 
 - [webapi-vim][]
@@ -30,7 +32,7 @@ Simple plugin for checking the latest version of the Python package in Vim.
 ## Settings
 
     // Default settings
-    let g:pypi_print_results = 1
+    let g:pypi_print_results = 0
     let g:pypi_replace_latest_version = 1
     let g:pypi_replace_type = '=='  // or '>=' or '<'
     let g:pypi_replace_with_comment = 0
